@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Quiz Generator - Login</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        /* ── Auth-page overrides ── */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1.5rem;
+        }
+
+        .auth-wrapper {
+            width: 100%;
+            max-width: 460px;
+            animation: fadeInUp 0.5s ease both;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Brand badge */
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .auth-brand .logo-icon { font-size: 3rem; display: block; margin-bottom: .5rem; }
+        .auth-brand h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .auth-brand p { color: var(--text-secondary); font-size: .9rem; margin-top: .25rem; }
+
+        /* Tab switcher */
+        .auth-tabs {
+            display: flex;
+            background: rgba(255,255,255,.05);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            margin-bottom: 1.75rem;
+            border: 1px solid var(--card-border);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: .6rem 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: .9rem;
+            font-weight: 600;
+            border-radius: calc(var(--radius-md) - 4px);
+            cursor: pointer;
+            transition: all .25s;
+        }
+        .tab-btn.active {
+            background: var(--primary-gradient);
+            color: #fff;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Card */
+        .auth-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: .45rem;
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: .75rem 1rem;
+            background: rgba(255,255,255,.06);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: .95rem;
+            transition: border-color .2s, box-shadow .2s;
+            outline: none;
+        }
+        .form-group input::placeholder { color: rgba(160,160,184,.5); }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 0 3px rgba(102,126,234,.18);
+        }
+        .form-group select option { background: #1a1a2e; }
+
+        /* Role selector */
+        .role-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: .75rem;
+        }
+        .role-card {
+            position: relative;
+        }
+        .role-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0; height: 0;
+        }
+        .role-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .4rem;
+            padding: 1rem;
+            background: rgba(255,255,255,.04);
+            border: 2px solid var(--card-border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all .2s;
+            font-weight: 600;
+            font-size: .9rem;
+            color: var(--text-secondary);
+        }
+        .role-label .role-icon { font-size: 1.6rem; }
+        .role-card input[type="radio"]:checked + .role-label {
+            border-color: var(--accent-purple);
+            background: rgba(102,126,234,.12);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 3px rgba(102,126,234,.15);
+        }
+
+        /* Teacher info banner */
+        .teacher-info {
+            display: none;
+            background: rgba(102,126,234,.1);
+            border: 1px solid rgba(102,126,234,.3);
+            border-radius: var(--radius-sm);
+            padding: .75rem 1rem;
+            margin-bottom: 1.2rem;
+            font-size: .85rem;
+            color: #c0b6f2;
+        }
+        .teacher-info strong { color: #a78bfa; }
+
+        /* Submit button */
+        .btn-auth {
+            width: 100%;
+            padding: .85rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--primary-gradient);
+            color: #fff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: .5rem;
+            letter-spacing: .02em;
+            transition: opacity .2s, transform .15s;
+            box-shadow: var(--shadow-glow);
+        }
+        .btn-auth:hover  { opacity: .9; transform: translateY(-1px); }
+        .btn-auth:active { transform: translateY(0); }
+        .btn-auth:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
+        /* Alert */
+        .alert {
+            padding: .75rem 1rem;
+            border-radius: var(--radius-sm);
+            font-size: .9rem;
+            margin-bottom: 1.25rem;
+            display: none;
+        }
+        .alert.error   { background: rgba(245,87,108,.15); border: 1px solid rgba(245,87,108,.3); color: #f5576c; }
+        .alert.success { background: rgba(79,172,254,.15); border: 1px solid rgba(79,172,254,.3); color: #4facfe; }
+        .alert.show    { display: block; }
+
+        /* Divider */
+        .auth-divider {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: .8rem;
+            margin: 1.5rem 0 1rem;
+            position: relative;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: var(--card-border);
+        }
+        .auth-divider::before { left: 0; }
+        .auth-divider::after  { right: 0; }
+
+        /* Panel show/hide */
+        .auth-panel { display: none; }
+        .auth-panel.active { display: block; }
+
+        /* Loading spinner inside button */
+        .spinner {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(255,255,255,.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            vertical-align: middle;
+            margin-right: .4rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+
+    <!-- Brand -->
+    <div class="auth-brand">
+        <span class="logo-icon">🎓</span>
+        <h1>AI Quiz Generator</h1>
+        <p>Sign in to continue to your dashboard</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="auth-tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn"        onclick="switchTab('register')">Create Account</button>
+    </div>
+
+    <!-- Card -->
+    <div class="auth-card">
+
+        <!-- ── LOGIN PANEL ── -->
+        <div id="loginPanel" class="auth-panel active">
+            <div id="loginAlert" class="alert"></div>
+
+            <!-- Role selector shown first in login -->
+            <div class="form-group">
+                <label>I am a…</label>
+                <div class="role-grid">
+                    <div class="role-card">
+                        <input type="radio" name="loginRole" id="loginRoleStudent" value="STUDENT" checked
+                            onchange="onLoginRoleChange()">
+                        <label class="role-label" for="loginRoleStudent">
+                            <span class="role-icon">✏️</span> Student
+                        </label>
+                    </div>
+                    <div class="role-card">
+                        <input type="radio" name="loginRole" id="loginRoleTeacher" value="TEACHER"
+                            onchange="onLoginRoleChange()">
+                        <label class="role-label" for="loginRoleTeacher">
+                            <span class="role-icon">📚</span> Teacher
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teacher info banner (shown only when Teacher is selected) -->
+            <div class="teacher-info" id="teacherInfoBanner">
+                📋 Use the <strong>predefined teacher credentials</strong> to sign in as a teacher.
+                Enter your <strong>display name</strong> below so students and results show your name correctly.
+            </div>
+
+            <!-- Display name — only shown for teacher login -->
+            <div class="form-group" id="teacherNameGroup" style="display:none;">
+                <label>Your Display Name</label>
+                <input type="text" id="loginTeacherName" placeholder="e.g. Mr. Sharma, Dr. Raunak">
+            </div>
+
+            <div class="form-group">
+                <label>Username or Email</label>
+                <input type="text" id="loginUsername" placeholder="Enter your username or email" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="Enter your password" autocomplete="current-password">
+            </div>
+
+            <button class="btn-auth" id="loginBtn" onclick="handleLogin()">Sign In</button>
+
+            <div class="auth-divider">or</div>
+            <p style="text-align:center; color: var(--text-secondary); font-size:.88rem;">
+                Don't have an account?
+                <a href="#" onclick="switchTab('register')" style="color:var(--accent-purple); font-weight:600;">Create one</a>
+            </p>
+        </div>
+
+        <!-- ── REGISTER PANEL ── -->
+        <div id="registerPanel" class="auth-panel">
+            <div id="registerAlert" class="alert"></div>
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="regFullName" placeholder="Your full name" autocomplete="name">
+            </div>
+
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="regUsername" placeholder="Choose a username" autocomplete="username">
+            </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="regEmail" placeholder="your@email.com" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+                <label>Password <span style="font-weight:400;text-transform:none;">(min. 6 characters)</span></label>
+                <input type="password" id="regPassword" placeholder="Create a password" autocomplete="new-password">
+            </div>
+
+            <!-- Register only allows Student role — teachers use predefined login -->
+            <div class="form-group">
+                <label>Role</label>
+                <div class="role-grid">
+                    <div class="role-card">
+                        <input type="radio" name="role" id="roleStudent" value="STUDENT" checked>
+                        <label class="role-label" for="roleStudent">
+                            <span class="role-icon">✏️</span> Student
+                        </label>
+                    </div>
+                    <div class="role-card" style="opacity:.45;pointer-events:none;" title="Teachers use the predefined login">
+                        <input type="radio" name="role" id="roleTeacher" value="TEACHER" disabled>
+                        <label class="role-label" for="roleTeacher">
+                            <span class="role-icon">📚</span> Teacher
+                        </label>
+                    </div>
+                </div>
+                <p style="color:var(--text-secondary);font-size:.78rem;margin-top:.5rem;">
+                    Teachers use the predefined Sign In credentials.
+                </p>
+            </div>
+
+            <button class="btn-auth" id="registerBtn" onclick="handleRegister()">Create Account</button>
+
+            <div class="auth-divider">or</div>
+            <p style="text-align:center; color: var(--text-secondary); font-size:.88rem;">
+                Already have an account?
+                <a href="#" onclick="switchTab('login')" style="color:var(--accent-purple); font-weight:600;">Sign in</a>
+            </p>
+        </div>
+
+    </div><!-- /.auth-card -->
+</div><!-- /.auth-wrapper -->
+
+<script>
+    // ── Predefined teacher credentials ────────────────────────────────────────
+    // Change these two values to update the teacher login
+    const TEACHER_EMAIL    = 'admin@quiz.com';
+    const TEACHER_PASSWORD = 'admin123';
+
+    // ── Role change handler ───────────────────────────────────────────────────
+    function onLoginRoleChange() {
+        const isTeacher = document.getElementById('loginRoleTeacher').checked;
+        document.getElementById('teacherNameGroup').style.display  = isTeacher ? 'block' : 'none';
+        document.getElementById('teacherInfoBanner').style.display = isTeacher ? 'block' : 'none';
+
+        // Pre-fill email for teacher so they don't have to type it
+        const usernameInput = document.getElementById('loginUsername');
+        if (isTeacher) {
+            usernameInput.value       = TEACHER_EMAIL;
+            usernameInput.readOnly    = true;
+            usernameInput.style.opacity = '0.5';
+        } else {
+            usernameInput.value       = '';
+            usernameInput.readOnly    = false;
+            usernameInput.style.opacity = '1';
+        }
+    }
+
+    // ── Tab switching ─────────────────────────────────────────────────────────
+    function switchTab(tab) {
+        document.getElementById('loginPanel').classList.toggle('active', tab === 'login');
+        document.getElementById('registerPanel').classList.toggle('active', tab === 'register');
+        document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+            btn.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
+        });
+        clearAlerts();
+    }
+
+    // ── Alert helpers ─────────────────────────────────────────────────────────
+    function showAlert(id, message, type) {
+        const el = document.getElementById(id);
+        el.textContent = message;
+        el.className = `alert ${type} show`;
+    }
+    function clearAlerts() {
+        ['loginAlert','registerAlert'].forEach(id => {
+            const el = document.getElementById(id);
+            el.className = 'alert';
+            el.textContent = '';
+        });
+    }
+
+    // ── Loading state ─────────────────────────────────────────────────────────
+    function setLoading(btnId, loading) {
+        const btn = document.getElementById(btnId);
+        if (loading) {
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner"></span> Please wait…`;
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = btnId === 'loginBtn' ? 'Sign In' : 'Create Account';
+        }
+    }
+
+    // ── Post-login redirect ───────────────────────────────────────────────────
+    function redirectByRole(role) {
+        window.location.href = role === 'TEACHER' ? '/teacher.html' : '/student.html';
+    }
+
+    // ── Session helper ────────────────────────────────────────────────────────
+    function saveSession(data) {
+        sessionStorage.setItem('quizUser', JSON.stringify({
+            userId:   data.userId,
+            username: data.username,
+            fullName: data.fullName,
+            role:     data.role
+        }));
+    }
+
+    // ── LOGIN ─────────────────────────────────────────────────────────────────
+    async function handleLogin() {
+        clearAlerts();
+
+        const isTeacher = document.getElementById('loginRoleTeacher').checked;
+        const username  = document.getElementById('loginUsername').value.trim();
+        const password  = document.getElementById('loginPassword').value;
+
+        if (!username || !password) {
+            showAlert('loginAlert', 'Please fill in all fields.', 'error');
+            return;
+        }
+
+        // ── Teacher: check predefined credentials locally ──────────────────
+        if (isTeacher) {
+            const displayName = document.getElementById('loginTeacherName').value.trim();
+            if (!displayName) {
+                showAlert('loginAlert', 'Please enter your display name.', 'error');
+                return;
+            }
+
+            const emailMatch    = username.toLowerCase() === TEACHER_EMAIL.toLowerCase();
+            const passwordMatch = password === TEACHER_PASSWORD;
+
+            if (!emailMatch || !passwordMatch) {
+                showAlert('loginAlert', 'Invalid teacher credentials.', 'error');
+                return;
+            }
+
+            // Save teacher session locally — no API call needed
+            sessionStorage.setItem('quizUser', JSON.stringify({
+                userId:   0,
+                username: displayName.replace(/\s+/g, '_').toLowerCase(),
+                fullName: displayName,
+                role:     'TEACHER'
+            }));
+
+            showAlert('loginAlert', `Welcome, ${displayName}! Redirecting…`, 'success');
+            setTimeout(() => redirectByRole('TEACHER'), 900);
+            return;
+        }
+
+        // ── Student: normal API login ──────────────────────────────────────
+        setLoading('loginBtn', true);
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                saveSession(data);
+                showAlert('loginAlert', `Welcome back, ${data.fullName || data.username}! Redirecting…`, 'success');
+                setTimeout(() => redirectByRole(data.role), 900);
+            } else {
+                showAlert('loginAlert', data.message || 'Login failed. Please try again.', 'error');
+            }
+        } catch (err) {
+            showAlert('loginAlert', 'Network error. Is the server running?', 'error');
+        } finally {
+            setLoading('loginBtn', false);
+        }
+    }
+
+    // ── REGISTER (students only) ──────────────────────────────────────────────
+    async function handleRegister() {
+        clearAlerts();
+        const fullName = document.getElementById('regFullName').value.trim();
+        const username = document.getElementById('regUsername').value.trim();
+        const email    = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const role     = 'STUDENT'; // registration is always student
+
+        if (!username || !email || !password) {
+            showAlert('registerAlert', 'Username, email and password are required.', 'error');
+            return;
+        }
+        if (password.length < 6) {
+            showAlert('registerAlert', 'Password must be at least 6 characters.', 'error');
+            return;
+        }
+
+        setLoading('registerBtn', true);
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullName, username, email, password, role })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                saveSession(data);
+                showAlert('registerAlert', 'Account created! Redirecting…', 'success');
+                setTimeout(() => redirectByRole(data.role), 900);
+            } else {
+                showAlert('registerAlert', data.message || 'Registration failed.', 'error');
+            }
+        } catch (err) {
+            showAlert('registerAlert', 'Network error. Is the server running?', 'error');
+        } finally {
+            setLoading('registerBtn', false);
+        }
+    }
+
+    // ── Allow Enter key ───────────────────────────────────────────────────────
+    document.addEventListener('keydown', e => {
+        if (e.key !== 'Enter') return;
+        if (document.getElementById('loginPanel').classList.contains('active')) handleLogin();
+        else handleRegister();
+    });
+
+    // ── Redirect if already logged in ─────────────────────────────────────────
+    const existing = sessionStorage.getItem('quizUser');
+    if (existing) {
+        try {
+            const u = JSON.parse(existing);
+            if (u && u.role) redirectByRole(u.role);
+        } catch (_) { sessionStorage.removeItem('quizUser'); }
+    }
+</script>
+</body>
+</html>

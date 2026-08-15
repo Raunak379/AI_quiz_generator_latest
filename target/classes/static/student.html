@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Quiz - Quiz Generator</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="/js/auth.js"></script>
+</head>
+
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">🎓 Quiz Generator</div>
+            <nav>
+                <a href="/">Home</a>
+                <a href="/student.html" class="active">Student</a>
+                <a href="/leaderboard.html">Leaderboard</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: .5rem; background: var(--secondary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            Take a Quiz
+        </h1>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem; font-size: 1rem;">
+            Welcome, <strong id="welcomeName" style="color: var(--text-primary);"></strong> 👋
+        </p>
+
+        <!-- Quiz selection -->
+        <div id="quizSelection" class="card mb-2">
+            <div class="card-header">
+                <h2 class="card-title">Select a Quiz</h2>
+                <p class="card-subtitle">Choose a quiz to attempt</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Select Quiz</label>
+                <select id="quizSelect" class="form-select">
+                    <option value="">Loading quizzes...</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" onclick="startQuiz()">Start Quiz</button>
+        </div>
+
+        <!-- Quiz in progress -->
+        <div id="quizContainer" class="hidden">
+            <div class="card mb-2" style="background: rgba(102, 126, 234, 0.1); border-color: var(--accent-purple);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 id="quizTitle" style="margin-bottom: 0.5rem;">Quiz Title</h3>
+                        <p style="color: var(--text-secondary);">Student: <span id="displayStudentName"></span></p>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 2rem; font-weight: 800; color: var(--accent-purple);">
+                            <span id="currentQuestion">1</span>/<span id="totalQuestions">10</span>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem;">Questions</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="questionsContainer"></div>
+
+            <div class="card">
+                <button class="btn btn-success" onclick="submitQuiz()" style="width: 100%; font-size: 1.1rem; padding: 1rem;">
+                    Submit Quiz
+                </button>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsContainer" class="hidden">
+            <div class="card" style="text-align: center;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+                <h2 style="font-size: 2rem; margin-bottom: 1rem;">Quiz Completed!</h2>
+
+                <div style="background: var(--primary-gradient); border-radius: var(--radius-lg); padding: 2rem; margin: 2rem 0;">
+                    <div style="font-size: 3rem; font-weight: 800; color: white; margin-bottom: 0.5rem;">
+                        <span id="scoreDisplay">0</span>/<span id="totalScore">10</span>
+                    </div>
+                    <div style="font-size: 1.5rem; color: white; opacity: 0.9;">
+                        <span id="percentageDisplay">0</span>%
+                    </div>
+                </div>
+
+                <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                    Great job, <span id="resultStudentName"></span>! Your score has been recorded.
+                </p>
+
+                <div style="display: flex; gap: 1rem; justify-content: center;">
+                    <button class="btn btn-primary" onclick="location.reload()">Take Another Quiz</button>
+                    <a href="/leaderboard.html" class="btn btn-secondary">View Leaderboard</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Past attempts history -->
+        <div id="historySection" class="card hidden" style="margin-top: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title">My Past Attempts</h2>
+                <p class="card-subtitle">Your quiz history and scores</p>
+            </div>
+            <div id="historyLoading" class="spinner"></div>
+            <div id="noHistory" class="hidden" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                <p>You haven't attempted any quizzes yet. Take your first quiz above!</p>
+            </div>
+            <div id="historyTable" class="hidden" style="overflow-x: auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:.9rem;">
+                    <thead>
+                        <tr style="border-bottom:2px solid var(--card-border);color:var(--text-secondary);text-align:left;">
+                            <th style="padding:.6rem .8rem;">Quiz</th>
+                            <th style="padding:.6rem .8rem;text-align:center;">Score</th>
+                            <th style="padding:.6rem .8rem;text-align:center;">%</th>
+                            <th style="padding:.6rem .8rem;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/js/student.js"></script>
+</body>
+
+</html>
